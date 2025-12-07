@@ -1,0 +1,51 @@
+---
+- name: Deploy Application using Docker
+  hosts: webserver
+  become: yes
+  tasks:
+
+    - name: Copy file to remote server
+      ansible.builtin.copy:
+        src: /var/lib/jenkins/workspace/my-job/  # update file name
+        dest: /opt/app/
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy Dockerfile to remote server
+      ansible.builtin.copy:
+        src: /var/lib/jenkins/workspace/my-job/Dockerfile
+        dest: /opt/app/Dockerfile
+        mode: '0644'
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: myapp
+        tag: latest
+        source: build
+        build:
+          path: /opt/app/
+        state: present
+
+    - name: Stop existing container if running
+      community.docker.docker_container:
+        name: myapp-container
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove existing container if present
+      community.docker.docker_container:
+        name: myapp-container
+        state: absent
+      ignore_errors: yes
+
+    - name: Run docker container
+      community.docker.docker_container:
+        name: myapp-container
+        image: myapp:latest
+        state: started
+        restart_policy: always
+        published_ports:
+          - "8080:8080"              # change if your app runs on different port
+        env:
+          JAVA_OPTS: "-Xms256m -Xmx512m"
