@@ -6,7 +6,7 @@
 
     - name: Copy file to remote server
       ansible.builtin.copy:
-        src: /var/lib/jenkins/workspace/my-job/  # update file name
+        src: /var/lib/jenkins/workspace/cicd/  # update file name
         dest: /opt/app/
         owner: ubuntu
         group: ubuntu
@@ -14,7 +14,7 @@
 
     - name: Copy Dockerfile to remote server
       ansible.builtin.copy:
-        src: /var/lib/jenkins/workspace/my-job/Dockerfile
+        src: /var/lib/jenkins/workspace/cicd/Dockerfile
         dest: /opt/app/Dockerfile
         mode: '0644'
 
